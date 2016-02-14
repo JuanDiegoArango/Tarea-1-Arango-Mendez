@@ -42,38 +42,31 @@ int main(void){
 		exit(1);
 	}
 	
-	srand48(n_points);
+	t=0.0;
+	q1_RK4=0.4325;
+	q2_RK4=50;
+	p1_RK4=0.0;
+	p2_RK4=10;
+	q1_S=0.4325;
+	q2_S=0.3;
+	p1_S=0.0;
+	p2_S=0.4;
+	epsilon=1.0;
 	
-	for (j=0; j<83; j++) {
+	for(i=0;i<n_step;i++){
 		
-		/* inician con condiciones fijas la masa 1, y aleatorias entre 0 y 1 para la masa 2, en el articulo esta es la masa 3 */
-		t=0.0;
-		q1_RK4=0.4325;
-		q2_RK4=drand48();
-		p1_RK4=0.0;
-		p2_RK4=drand48();
-		q1_S=q1_RK4;
-		q2_S=q2_RK4
-		p1_S=p1_RK4;
-		p2_S=p2_RK4;
-		epsilon=1.0;
-		
-		for(i=0;i<n_step;i++){
-			
-			fprintf(in1,"%f %.15e %.15e %.15e %.15e\n", t, q1_RK4, p1_RK4, q2_RK4, p2_RK4);
-			fprintf(in0,"%f %.15e %.15e %.15e %.15e\n", t, q1_S, p1_S, q2_S, p2_S);
-			q1_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_q1);
-			q2_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_q2);
-			p1_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_p1);
-			p2_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_p2);
-			simplectic_step( step,  t, &q1_S, &q2_S, &p1_S, &p2_S, epsilon, func_q1, func_q2, func_p1, func_p2);
-			t += step;
-		}
+		fprintf(in1,"%f %.15e %.15e %.15e %.15e\n", t, q1_RK4, p1_RK4, q2_RK4, p2_RK4);
+		fprintf(in0,"%f %.15e %.15e %.15e %.15e\n", t, q1_S, p1_S, q2_S, p2_S);
+		q1_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_q1);
+		q2_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_q2);
+		p1_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_p1);
+		p2_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_p2);
+		simplectic_step( step,  t, &q1_S, &q2_S, &p1_S, &p2_S, epsilon, func_q1, func_q2, func_p1, func_p2);
+		t += step;
 	}
 	
 	
-
-
+	
 	return 0;
 }
 
@@ -160,10 +153,3 @@ void simplectic_step(double step, double t, double *w, double *x, double *y, dou
 	*y=p1_in;
 	*z=p2_in;
 }
-
-
-
-
-
-
-
