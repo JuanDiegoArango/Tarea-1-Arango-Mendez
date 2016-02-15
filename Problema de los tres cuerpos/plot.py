@@ -10,7 +10,7 @@ a=sys.argv[1]
 data = np.loadtxt(""+a+"")
 plt.xlabel("p")
 plt.ylabel("q")
-plt.scatter(data[:,0], data[:,1])
+plt.scatter(data[:,3][0:10000], data[:,4][0:10000])
 
 
 plt.savefig("grafica.pdf")

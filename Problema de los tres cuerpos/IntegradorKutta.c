@@ -53,7 +53,7 @@ int main(void){
 		p1_RK4=0.0;
 		p2_RK4=drand48();
 		q1_S=q1_RK4;
-		q2_S=q2_RK4
+		q2_S=q2_RK4;
 		p1_S=p1_RK4;
 		p2_S=p2_RK4;
 		epsilon=1.0;
