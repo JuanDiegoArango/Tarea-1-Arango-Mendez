@@ -4,27 +4,30 @@
 #include <stdlib.h>
 
 typedef double (*derivative)(double t, double w, double x, double y, double z, double epsilon);
-double RK4_step(double step, double t, double w, double x, double y, double z, double epsilon, derivative dev);
 double func_q1(double t, double w, double x, double y, double z, double epsilon);
 double func_p1(double t, double w, double x, double y, double z, double epsilon);
 double func_q2(double t, double w, double x, double y, double z, double epsilon);
 double func_p2(double t, double w, double x, double y, double z, double epsilon);
-void simplectic_step(double step, double t, double *w, double *x, double *y, double *z, double epsilon, derivative fq1, derivative fq2,derivative fp1, derivative fp2);
+void RK4_step(double step, double t, double *w1, double *x1, double *y1, double *z1, double epsilon, derivative func_q1, derivative func_q2, derivative func_p1, derivative func_p2);
+void simplectic_step(double step, double t, double *w2, double *x2, double *y2, double *z2, double epsilon, derivative func_q1, derivative func_q2,derivative func_p1, derivative func_p2);
 
-int main(void){
+
+int main(int argc, char ** argv){
 	double q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon;
 	double q1_S, q2_S, p1_S, p2_S;
+	double a=atof(argv[1]);
 	double t;
+	double dp=0.001;
 	int i,j;
 	
 	double T=2800.0;
 	double step=0.006;
 	int n_step = (int)(T/step);
-	int n_runs=83;
+	int n_runs=100;
 	
 	FILE *in0;
 	char filename1[100];
-	sprintf(filename1, "orbitasSimp.dat");
+	sprintf(filename1, "Simplectico_%s.dat", argv[1]);
 	in0 = fopen(filename1,"w");
 	
 	if(!in0){
@@ -34,7 +37,7 @@ int main(void){
 	
 	FILE *in1;
 	char filename2[100];
-	sprintf(filename2, "orbitasRK4.dat");
+	sprintf(filename2, "RK4_%s.dat", argv[1]);
 	in1 = fopen(filename2,"w");
 	
 	if(!in1){
@@ -42,16 +45,17 @@ int main(void){
 		exit(1);
 	}
 	
-	srand48(n_points);
+	srand48(n_runs);
 	
-	for (j=0; j<83; j++) {
-		
-		/* inician con condiciones fijas la masa 1, y aleatorias entre 0 y 1 para la masa 2, en el articulo esta es la masa 3 */
+	/*******************/
+	/*******************/
+	
+	for (j=0; j<n_runs/8; j++) {
 		t=0.0;
-		q1_RK4=0.4325;
-		q2_RK4=drand48();
+		q1_RK4=a;
+		q2_RK4=0.1*(2*drand48()-1);
 		p1_RK4=0.0;
-		p2_RK4=drand48();
+		p2_RK4=0.1*(2*drand48()-1);
 		q1_S=q1_RK4;
 		q2_S=q2_RK4;
 		p1_S=p1_RK4;
@@ -59,35 +63,153 @@ int main(void){
 		epsilon=1.0;
 		
 		for(i=0;i<n_step;i++){
+			if (fabs(p1_RK4)<dp) {
+				fprintf(in1,"%f %.15e %.15e %.15e %.15e\n", t, q1_RK4, p1_RK4, q2_RK4, p2_RK4);
+			}
 			
-			fprintf(in1,"%f %.15e %.15e %.15e %.15e\n", t, q1_RK4, p1_RK4, q2_RK4, p2_RK4);
-			fprintf(in0,"%f %.15e %.15e %.15e %.15e\n", t, q1_S, p1_S, q2_S, p2_S);
-			q1_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_q1);
-			q2_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_q2);
-			p1_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_p1);
-			p2_RK4 += RK4_step(step, t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon, func_p2);
+			if (fabs(p1_S)<dp) {
+				fprintf(in0,"%f %.15e %.15e %.15e %.15e\n", t, q1_S, p1_S, q2_S, p2_S);
+			}
+			
+			RK4_step( step,  t, &q1_RK4, &q2_RK4, &p1_RK4, &p2_RK4, epsilon, func_q1, func_q2, func_p1, func_p2);
 			simplectic_step( step,  t, &q1_S, &q2_S, &p1_S, &p2_S, epsilon, func_q1, func_q2, func_p1, func_p2);
 			t += step;
 		}
 	}
 	
+	/*******************/
+	/*******************/
 	
-
-
+	/*******************/
+	/*******************/
+	
+	for (j=0; j<n_runs/8; j++) {
+		t=0.0;
+		q1_RK4=a;
+		q2_RK4=0.5*(2*drand48()-1);
+		p1_RK4=0.0;
+		p2_RK4=0.5*(2*drand48()-1);
+		q1_S=q1_RK4;
+		q2_S=q2_RK4;
+		p1_S=p1_RK4;
+		p2_S=p2_RK4;
+		epsilon=1.0;
+		
+		for(i=0;i<n_step;i++){
+			if (fabs(p1_RK4)<dp) {
+				fprintf(in1,"%f %.15e %.15e %.15e %.15e\n", t, q1_RK4, p1_RK4, q2_RK4, p2_RK4);
+			}
+			
+			if (fabs(p1_S)<dp) {
+				fprintf(in0,"%f %.15e %.15e %.15e %.15e\n", t, q1_S, p1_S, q2_S, p2_S);
+			}
+			
+			RK4_step( step,  t, &q1_RK4, &q2_RK4, &p1_RK4, &p2_RK4, epsilon, func_q1, func_q2, func_p1, func_p2);
+			simplectic_step( step,  t, &q1_S, &q2_S, &p1_S, &p2_S, epsilon, func_q1, func_q2, func_p1, func_p2);
+			t += step;
+		}
+	}
+	
+	/*******************/
+	/*******************/
+	
+	/*******************/
+	/*******************/
+	
+	for (j=0; j<n_runs/4; j++) {
+		t=0.0;
+		q1_RK4=a;
+		q2_RK4=(2*drand48()-1);
+		p1_RK4=0.0;
+		p2_RK4=(2*drand48()-1);
+		q1_S=q1_RK4;
+		q2_S=q2_RK4;
+		p1_S=p1_RK4;
+		p2_S=p2_RK4;
+		epsilon=1.0;
+		
+		for(i=0;i<n_step;i++){
+			if (fabs(p1_RK4)<dp) {
+				fprintf(in1,"%f %.15e %.15e %.15e %.15e\n", t, q1_RK4, p1_RK4, q2_RK4, p2_RK4);
+			}
+			
+			if (fabs(p1_S)<dp) {
+				fprintf(in0,"%f %.15e %.15e %.15e %.15e\n", t, q1_S, p1_S, q2_S, p2_S);
+			}
+			
+			RK4_step( step,  t, &q1_RK4, &q2_RK4, &p1_RK4, &p2_RK4, epsilon, func_q1, func_q2, func_p1, func_p2);
+			simplectic_step( step,  t, &q1_S, &q2_S, &p1_S, &p2_S, epsilon, func_q1, func_q2, func_p1, func_p2);
+			t += step;
+		}
+	}
+	
+	/*******************/
+	/*******************/
+	/*******************/
+	/*******************/
+	
+	for (j=0; j<n_runs/2; j++) {
+		t=0.0;
+		q1_RK4=a;
+		q2_RK4=5*(2*drand48()-1);
+		p1_RK4=0.0;
+		p2_RK4=5*(2*drand48()-1);
+		q1_S=q1_RK4;
+		q2_S=q2_RK4;
+		p1_S=p1_RK4;
+		p2_S=p2_RK4;
+		epsilon=1.0;
+		
+		for(i=0;i<n_step;i++){
+			if (fabs(p1_RK4)<dp) {
+				fprintf(in1,"%f %.15e %.15e %.15e %.15e\n", t, q1_RK4, p1_RK4, q2_RK4, p2_RK4);
+			}
+			
+			if (fabs(p1_S)<dp) {
+				fprintf(in0,"%f %.15e %.15e %.15e %.15e\n", t, q1_S, p1_S, q2_S, p2_S);
+			}
+			
+			RK4_step( step,  t, &q1_RK4, &q2_RK4, &p1_RK4, &p2_RK4, epsilon, func_q1, func_q2, func_p1, func_p2);
+			simplectic_step( step,  t, &q1_S, &q2_S, &p1_S, &p2_S, epsilon, func_q1, func_q2, func_p1, func_p2);
+			t += step;
+		}
+	}
+	
+	/*******************/
+	/*******************/
+	
+	
+	
+	for (j=0; j<n_runs/8; j++) {
+		t=0.0;
+		q1_RK4=a;
+		q2_RK4=-2;
+		p1_RK4=0.0;
+		p2_RK4=0;
+		q1_S=q1_RK4;
+		q2_S=q2_RK4;
+		p1_S=p1_RK4;
+		p2_S=p2_RK4;
+		epsilon=1.0;
+		
+		for(i=0;i<n_step;i++){
+			if (fabs(p1_RK4)<dp) {
+				fprintf(in1,"%f %.15e %.15e %.15e %.15e\n", t, q1_RK4, p1_RK4, q2_RK4, p2_RK4);
+			}
+			
+			if (fabs(p1_S)<dp) {
+				fprintf(in0,"%f %.15e %.15e %.15e %.15e\n", t, q1_S, p1_S, q2_S, p2_S);
+			}
+			
+			RK4_step( step,  t, &q1_RK4, &q2_RK4, &p1_RK4, &p2_RK4, epsilon, func_q1, func_q2, func_p1, func_p2);
+			simplectic_step( step,  t, &q1_S, &q2_S, &p1_S, &p2_S, epsilon, func_q1, func_q2, func_p1, func_p2);
+			t += step;
+		}
+	}
+	
 	return 0;
 }
 
-
-double RK4_step(double step, double t, double w, double x, double y, double z, double epsilon, derivative dev){
-	double k1, k2, k3, k4;
-	double y_step;
-	k1 = dev( t, w, x, y, z, epsilon);
-	k2 = dev( t+ step*0.5, w+ step*0.5, x+ step*0.5, y+ step*0.5, z+ step*0.5, epsilon);
-	k3 = dev( t+ step*0.5, w+ step*0.5, x+ step*0.5, y+ step*0.5, z+ step*0.5,epsilon);
-	k4 = dev( t+ k3*step, w+ k3*step, x+ k3*step, y+ k3*step, z+ k3*step,epsilon);
-	y_step = (k1/6.0 + k2/3.0 + k3/3.0 + k4/6.0)*step;
-	return y_step;
-}
 
 
 double func_q1(double t, double w, double x, double y, double z, double epsilon){
@@ -114,56 +236,123 @@ double func_p2(double t, double w, double x, double y, double z, double epsilon)
 	return v;
 }
 
-void simplectic_step(double step, double t, double *w, double *x, double *y, double *z, double epsilon, derivative fq1, derivative fq2,derivative fp1, derivative fp2){
+
+
+/*runge kutta 4*/
+
+
+
+void RK4_step(double step, double t, double *w1, double *x1, double *y1, double *z1, double epsilon, derivative func_q1, derivative func_q2, derivative func_p1, derivative func_p2){
+	
+	double k1, k2, k3, k4;
+	double l1, l2, l3, l4;
+	double m1, m2, m3, m4;
+	double n1, n2, n3, n4;
 	double q1_in;
 	double p1_in;
 	double q2_in;
 	double p2_in;
-	double alpha1=-pow(2,1.0/3.0)/(2.0-pow(2,1.0/3.0));
-	double alpha0=1.0/(2.0-pow(2,1.0/3.0));
-	q1_in = *w;
-	q2_in = *x;
-	p1_in = *y;
-	p2_in = *z;
-	
-	/*1kick*/
-	p1_in += 0.5 * fp1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	p2_in += 0.5 * fp2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	/*1drift*/
-	q1_in += 1.0 * fq1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	q2_in += 1.0 * fq2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	/*1kick*/
-	p1_in += 0.5 * fp1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	p2_in += 0.5 * fp2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	/*2kick*/
-	p1_in += 0.5 * fp1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
-	p2_in += 0.5 * fp2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
-	/*2drift*/
-	q1_in += 1.0 * fq1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
-	q2_in += 1.0 * fq2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
-	/*2kick*/
-	p1_in += 0.5 * fp1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
-	p2_in += 0.5 * fp2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
-	/*3kick*/
-	p1_in += 0.5 * fp1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	p2_in += 0.5 * fp2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	/*3drift*/
-	q1_in += 1.0 * fq1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	q2_in += 1.0 * fq2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	/*3kick*/
-	p1_in += 0.5 * fp1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
-	p2_in += 0.5 * fp2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	q1_in = *w1;
+	q2_in = *x1;
+	p1_in = *y1;
+	p2_in = *z1;
 	
 	
-	*w=q1_in;
-	*x=q2_in;
-	*y=p1_in;
-	*z=p2_in;
+	k1 = func_q1( t, q1_in, q2_in, p1_in, p2_in, epsilon);
+	l1 = func_q2( t, q1_in, q2_in, p1_in, p2_in, epsilon);
+	m1 = func_p1( t, q1_in, q2_in, p1_in, p2_in, epsilon);
+	n1 = func_p2( t, q1_in, q2_in, p1_in, p2_in, epsilon);
+	
+	k2 = func_q1( t+ step*0.5, q1_in+ k1*step*0.5, q2_in+ l1*step*0.5, p1_in+ m1*step*0.5, p2_in+ n1*step*0.5, epsilon);
+	l2 = func_q2( t+ step*0.5, q1_in+ k1*step*0.5, q2_in+ l1*step*0.5, p1_in+ m1*step*0.5, p2_in+ n1*step*0.5, epsilon);
+	m2 = func_p1( t+ step*0.5, q1_in+ k1*step*0.5, q2_in+ l1*step*0.5, p1_in+ m1*step*0.5, p2_in+ n1*step*0.5, epsilon);
+	n2 = func_p2( t+ step*0.5, q1_in+ k1*step*0.5, q2_in+ l1*step*0.5, p1_in+ m1*step*0.5, p2_in+ n1*step*0.5, epsilon);
+	
+	k3 = func_q1( t+ step*0.5, q1_in+ k2*step*0.5, q2_in+ l2*step*0.5, p1_in+ m2*step*0.5, p2_in+ n2*step*0.5, epsilon);
+	l3 = func_q2( t+ step*0.5, q1_in+ k2*step*0.5, q2_in+ l2*step*0.5, p1_in+ m2*step*0.5, p2_in+ n2*step*0.5, epsilon);
+	m3 = func_p1( t+ step*0.5, q1_in+ k2*step*0.5, q2_in+ l2*step*0.5, p1_in+ m2*step*0.5, p2_in+ n2*step*0.5, epsilon);
+	n3 = func_p2( t+ step*0.5, q1_in+ k2*step*0.5, q2_in+ l2*step*0.5, p1_in+ m2*step*0.5, p2_in+ n2*step*0.5, epsilon);
+	
+	k4 = func_q1( t+ step, q1_in+ k3*step, q2_in+ l3*step, p1_in+ m3*step, p2_in+ n3*step, epsilon);
+	l4 = func_q2( t+ step, q1_in+ k3*step, q2_in+ l3*step, p1_in+ m3*step, p2_in+ n3*step, epsilon);
+	m4 = func_p1( t+ step, q1_in+ k3*step, q2_in+ l3*step, p1_in+ m3*step, p2_in+ n3*step, epsilon);
+	n4 = func_p2( t+ step, q1_in+ k3*step, q2_in+ l3*step, p1_in+ m3*step, p2_in+ n3*step, epsilon);
+	
+	q1_in += (k1/6.0 + k2/3.0 + k3/3.0 + k4/6.0)*step;
+	q2_in += (l1/6.0 + l2/3.0 + l3/3.0 + l4/6.0)*step;
+	p1_in += (m1/6.0 + m2/3.0 + m3/3.0 + m4/6.0)*step;
+	p2_in += (n1/6.0 + n2/3.0 + n3/3.0 + n4/6.0)*step;
+	
+	*w1=q1_in;
+	*x1=q2_in;
+	*y1=p1_in;
+	*z1=p2_in;
 }
 
 
+/*integrador simplectico*/
 
 
-
-
-
+void simplectic_step(double step, double t, double *w2, double *x2, double *y2, double *z2, double epsilon, derivative func_q1, derivative func_q2,derivative func_p1, derivative func_p2){
+	double q1_in;
+	double p1_in;
+	double q2_in;
+	double p2_in;
+	double alpha0=-pow(2,1.0/3.0)/(2.0-pow(2,1.0/3.0));
+	double alpha1=1.0/(2.0-pow(2,1.0/3.0));
+	q1_in = *w2;
+	q2_in = *x2;
+	p1_in = *y2;
+	p2_in = *z2;
+	
+	
+	/*cosa masiva*/
+	
+	/*1kick*/
+	p1_in += 0.5 * func_p1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*1drift*/
+	q1_in += 1.0 * func_q1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*1kick*/
+	p1_in += 0.5 * func_p1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*2kick*/
+	p1_in += 0.5 * func_p1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
+	/*2drift*/
+	q1_in += 1.0 * func_q1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
+	/*2kick*/
+	p1_in += 0.5 * func_p1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
+	/*3kick*/
+	p1_in += 0.5 * func_p1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*3drift*/
+	q1_in += 1.0 * func_q1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*3kick*/
+	p1_in += 0.5 * func_p1( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	
+	
+	/*cosa chiquita*/
+	
+	
+	/*1kick*/
+	p2_in += 0.5 * func_p2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*1drift*/
+	q2_in += 1.0 * func_q2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*1kick*/
+	p2_in += 0.5 * func_p2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*2kick*/
+	p2_in += 0.5 * func_p2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
+	/*2drift*/
+	q2_in += 1.0 * func_q2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
+	/*2kick*/
+	p2_in += 0.5 * func_p2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha0 * step;
+	/*3kick*/
+	p2_in += 0.5 * func_p2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*3drift*/
+	q2_in += 1.0 * func_q2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	/*3kick*/
+	p2_in += 0.5 * func_p2( t, q1_in, q2_in, p1_in, p2_in, epsilon) * alpha1 * step;
+	
+	
+	*w2=q1_in;
+	*x2=q2_in;
+	*y2=p1_in;
+	*z2=p2_in;
+}

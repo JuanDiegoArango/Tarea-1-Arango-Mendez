@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+#  Filter for multi-column datafile
+#  given by classical Godunov scheme
+#
+cat godunov.dat | awk '{print $1, $2}' > godunov.p
+cat godunov.dat | awk '{print $1, $3}' > godunov.r
+cat godunov.dat | awk '{print $1, $4}' > godunov.u
+
+# end of "godunov.filter" #

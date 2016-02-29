@@ -1,0 +1,11 @@
+godunov.c:
+
+First order explicit scheme for 1D gas dynamics conservation laws.
+Uses Exact procedure of Godunov to evaluate fluxes.
+Test case: Riemann problem.
+Output: file "input.dat" to plot parameters along x.
+
+solver.c: 
+Contains subroutine Godunov(...) - exact iterative Riemann solver.
+
+

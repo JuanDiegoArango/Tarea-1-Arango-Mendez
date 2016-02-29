@@ -1,0 +1,4 @@
+First order explicit scheme for 1D gas dynamics conservation laws
+Uses Roe Flux-Difference splitting
+Test case: Riemann problem
+Output: file "input.dat" to plot parameters along x

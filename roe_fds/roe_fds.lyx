@@ -1,0 +1,291 @@
+#This file was created by <andrei> Sun Nov  4 06:40:55 2001
+#LyX 0.12 (C) 1995-1998 Matthias Ettrich and the LyX Team
+\lyxformat 2.15
+\textclass article
+\language default
+\inputencoding default
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage widemarginsa4
+\use_geometry 1
+\use_amsmath 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Title
+
+First-order scheme for 1D conservation laws of gas dynamics based on Roe's
+ flux-difference splitting
+\layout Abstract
+
+A short description of code 
+\begin_inset Quotes eld
+\end_inset 
+
+roe_fds.c
+\begin_inset Quotes erd
+\end_inset 
+
+ found at: 
+\layout Abstract
+
+http://www.geocities.com/andrei_chernousov/CODES/roe_fds.tar.gz
+\layout Subsection*
+
+Description 
+\layout Standard
+
+The governing equations are 
+\begin_inset Formula 
+\begin{equation}
+\label{eg:1Dgov}
+\frac{\partial \overline{U}}{\partial t}+\frac{\partial \overline{F}}{\partial x}=0,
+\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+where 
+\begin_inset Formula \( \overline{U}=\left\{ \begin{array}{c}
+\rho \\
+\rho u\\
+e_{0}
+\end{array}\right\}  \)
+\end_inset 
+
+, 
+\begin_inset Formula \( \overline{F}=\left\{ \begin{array}{c}
+\rho u\\
+\rho u^{2}+p\\
+\rho uh_{0}
+\end{array}\right\}  \)
+\end_inset 
+
+.
+ In case of the perfect gas we have
+\begin_inset Formula 
+\[
+p=(\gamma -1)[e_{0}-0.5\rho u^{2}],\]
+
+\end_inset 
+
+ 
+\begin_inset Formula 
+\[
+h_{0}=\frac{\gamma }{\gamma -1}\frac{p}{\rho }+0.5\rho u^{2},\]
+
+\end_inset 
+
+
+\begin_inset Formula 
+\[
+e_{0}=\rho h_{0}-p.\]
+
+\end_inset 
+
+
+\layout Standard
+
+The first order scheme for discretization of (
+\begin_inset LatexCommand \ref{eg:1Dgov}
+
+\end_inset 
+
+) is 
+\begin_inset Formula 
+\[
+\overline{U}^{n+1}_{i}=\overline{U}^{n}_{i}+\Delta t\cdot L_{x}(\overline{U}^{n}_{i})=\overline{U}^{n}_{i}+\frac{\Delta t}{\Delta x}\left( \overline{F}^{n}_{i-1/2}-\overline{F}^{n}_{i+1/2}\right) ,\]
+
+\end_inset 
+
+
+\layout Standard
+
+where fluxes are evaluated using Roe's [
+\begin_inset LatexCommand \ref{ref:1}
+
+\end_inset 
+
+] flux-difference splitting
+\begin_inset Formula 
+\begin{equation}
+\label{eg:roe_fds}
+\overline{F}=\frac{1}{2}\left[ \overline{F}(\overline{U}_{L})+\overline{F}(\overline{U}_{R})-|\widetilde{A}|(\overline{U}_{R}-\overline{U}_{L})\right] ,
+\end{equation}
+
+\end_inset 
+
+
+\layout Standard
+
+where the matrix 
+\begin_inset Formula \( A\equiv \partial \overline{F}/\partial \widetilde{U} \)
+\end_inset 
+
+ is evaluated using Roe's average state
+\begin_inset Formula 
+\[
+D=\sqrt{\frac{\rho _{R}}{\rho _{L}}},\]
+
+\end_inset 
+
+
+\begin_inset Formula 
+\[
+\widetilde{\rho }=\rho _{L}D,\]
+
+\end_inset 
+
+ 
+\begin_inset Formula 
+\[
+\widetilde{u}=\frac{u_{L}+u_{R}D}{1+D},\]
+
+\end_inset 
+
+
+\begin_inset Formula 
+\[
+\widetilde{h_{0}}=\frac{h_{0L}+h_{0R}D}{1+D},\]
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula 
+\[
+\widetilde{a}=\sqrt{(\gamma -1)[\widetilde{h_{0}}-0.5\widetilde{u}^{2}].}\]
+
+\end_inset 
+
+
+\layout Standard
+
+Introducing diagonalizing matrix transform
+\begin_inset Formula 
+\[
+A=S\Lambda S^{-1},\]
+
+\end_inset 
+
+
+\layout Standard
+
+where 
+\begin_inset Formula \( \Lambda  \)
+\end_inset 
+
+ is the diagonal matrix of eigenvalues of matrix 
+\begin_inset Formula \( A \)
+\end_inset 
+
+, we can rewrite the last term in (
+\begin_inset LatexCommand \ref{eg:roe_fds}
+
+\end_inset 
+
+) as a sum:
+\begin_inset Formula 
+\[
+|\widetilde{A}|(\overline{U}_{R}-\overline{U}_{L})=\widetilde{S}\widetilde{A}\widetilde{S}^{-1}\Delta \overline{U}=|\Delta \widetilde{F}_{1}|+|\Delta \widetilde{F}_{4}|+|\Delta \widetilde{F}_{5}|,\]
+
+\end_inset 
+
+
+\layout Standard
+
+where these tree terms can be expressed as [
+\begin_inset LatexCommand \ref{ref:2}
+
+\end_inset 
+
+]: 
+\begin_inset Formula 
+\[
+|\Delta \widetilde{F}_{1}|=|\widetilde{u}|\left( \Delta \rho -\frac{\Delta p}{\widetilde{a}^{2}}\right) \left[ \begin{array}{c}
+1\\
+u\\
+0.5u^{2}
+\end{array}\right] ,\]
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula 
+\[
+|\Delta \widetilde{F}_{4,5}|=|\widetilde{u}\pm \widetilde{a}|\left( \frac{\Delta p\pm \widetilde{\rho }\widetilde{a}\Delta u}{2\widetilde{a}^{2}}\right) \left[ \begin{array}{c}
+1\\
+\widetilde{u}\pm \widetilde{a}\\
+\widetilde{h_{0}}\pm \widetilde{u}\widetilde{a}
+\end{array}\right] ,\]
+
+\end_inset 
+
+
+\layout Standard
+
+where 
+\begin_inset Formula \( \Delta p=p_{R}-p_{L} \)
+\end_inset 
+
+, 
+\begin_inset Formula \( \Delta \rho =\rho _{R}-\rho _{L} \)
+\end_inset 
+
+, 
+\begin_inset Formula \( \Delta u=u_{R}-u_{L} \)
+\end_inset 
+
+.
+\layout Bibliography
+\bibitem {1}
+
+
+\begin_inset LatexCommand \label{ref:1}
+
+\end_inset 
+
+Roe P.
+ L.
+ Approximate Riemann solvers, parameter vectors and difference scheme.
+ // J.
+ Comp.
+ Phys., 1981., v.
+ 43., pp.
+ 357--472.
+\layout Bibliography
+\bibitem {2}
+
+
+\begin_inset LatexCommand \label{ref:2}
+
+\end_inset 
+
+Roe P.
+ L.
+ Characteristic-based schemes for the Euler equations.
+ // Ann.
+ Rev.
+ Fluid.
+ Mech., 1986., v.
+ 8., pp.
+ 337--369.
+\the_end
