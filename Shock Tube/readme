@@ -2,3 +2,5 @@ Lo que se presenta aquí es lo siguiente:
 -Una implementación de algoritmo de Roe para resolver el tubo de shock, hubo un error que no pudo ser identificado entonces la simulación compila, pero diverge
 -Un programa en Python que da la solución analítica como se pide, y que produce gráficas para energía, momento, densidad y velocidad. De haber funciona el método numérico se hubiera contrastado gráficas para ambos casos.
 -Un makefile que correo los programas de python y C.
+
+Se usa como base del código de Godunov el esqueleto en el repositorio del curso.
