@@ -213,7 +213,7 @@ int main(int argc, char ** argv){
 	
 	for(i=0;i<n_step;i++){
 		ES=energy( t, q1_S, q2_S, p1_S, p2_S, epsilon);
-		ERK=ES=energy( t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon);
+		ERK=energy( t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon);
 		fprintf(in2,"%f %.15e %.15e\n", t, ERK, ES);
 		RK4_step( step,  t, &q1_RK4, &q2_RK4, &p1_RK4, &p2_RK4, epsilon, func_q1, func_q2, func_p1, func_p2);
 		simplectic_step( step,  t, &q1_S, &q2_S, &p1_S, &p2_S, epsilon, func_q1, func_q2, func_p1, func_p2);
