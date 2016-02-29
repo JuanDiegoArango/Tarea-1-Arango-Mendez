@@ -10,11 +10,13 @@
   University Press.)     
  */ 
 
-inline double fg(double x) {
+inline double fg(double x)
+{
     const double gamma = 1.4;
     const double g2 = (gamma + 1) / (2 * gamma);
     return (x-1) / sqrt(g2 * (x - 1) + 1);
 }
+
 
 
 void Riemann(double *U1, double *U4, double *F) {
@@ -28,28 +30,17 @@ void Riemann(double *U1, double *U4, double *F) {
     float r[3][3];
     
   const double gamma = 1.4;
-  const double g1 = (gamma - 1) / (2 * gamma);
-  const double g2 = (gamma + 1) / (2 * gamma);
-  const double g3 = (gamma + 1) / (gamma - 1);
-  const double tol = 1.0*1e-10;
   
     // compute primitive variables
   float rho1 = U1[0];
   float u1 = U1[1] / rho1;
   float p1 = (U1[2] - rho1 * u1 * u1 / 2.0) * (gamma - 1.0);
   float h1=(U1[0]+p1)/rho1;
-
-
-    
     
   float rho4 = U4[0];
   float u4 = U4[1] / rho4;
   float p4 = (U4[2] - rho4 * u4 * u4 / 2.0) * (gamma - 1.0);
   float h4=(U4[0]+p4)/rho4;
-    
-   printf("%f,%f,%f,%f,%f,%f,%f,%f\n",rho1,rho4,u1,u4,p1,p4,h1,h4);
-
-    
 
   // switch states if necessary so high pressure is on left
   int revflag = FALSE;
@@ -63,23 +54,23 @@ void Riemann(double *U1, double *U4, double *F) {
     float delta_rho=rho1-rho4;
     float delta_p=p1-p4;
     float delta_u=u1-u4;
+    
 
 
-    rhoRl =sqrt(rho1*rho4);
-    uRl=(sqrt(rho1)*u1+sqrt(rho4)*u4)/(sqrt(rho1)+sqrt(rho4));
-    hRl=(sqrt(rho1)*h1+sqrt(rho4)*h4)/(sqrt(rho1)+sqrt(rho4));
+    rhoRl =sqrt(fabs(rho1)*fabs(rho4));
+    uRl=(sqrt(fabs(rho1))*u1+sqrt(fabs(rho4))*u4) / (sqrt(rho1)+sqrt(rho4));
+    hRl=(sqrt(fabs(rho1))*h1+sqrt(fabs(rho4))*h4)/(sqrt(fabs(rho1))+sqrt(fabs(rho4)));
     aRl=sqrt((gamma - 1)*(hRl-0.5*uRl*uRl));
     
     lambda[0]=uRl;
-    lambda[1]=uRl-aRl;
-    lambda[2]=uRl+aRl;
+    lambda[1]=uRl+aRl;
+    lambda[2]=uRl-aRl;
     
     deltaV[0]=delta_rho-delta_p/(aRl*aRl);
     deltaV[1]=delta_u+delta_p/(aRl*rhoRl);
     deltaV[2]=delta_u-delta_p/(aRl*rhoRl);
     
     double a=rhoRl/(2*aRl);
-    
     
     r[0][0]=1.0;
     r[0][1]=uRl;
@@ -94,11 +85,12 @@ void Riemann(double *U1, double *U4, double *F) {
     r[2][2]=-a*(hRl-aRl*uRl);
     
 
-    F[0]=r[0][0]*min(0,lambda[0])*deltaV[0]+r[1][0]*min(0,lambda[1])*deltaV[1]+r[2][0]*min(0,lambda[2])*deltaV[2]+(rho1*u1);
-    F[1]=r[0][1]*min(0,lambda[0])*deltaV[0]+r[1][1]*min(0,lambda[1])*deltaV[1]+r[2][1]*min(0,lambda[2])*deltaV[2]+(rho1*u1*u1+p1)*0.5;
-    F[2]=r[0][2]*min(0,lambda[0])*deltaV[0]+r[1][2]*min(0,lambda[1])*deltaV[1]+r[2][2]*min(0,lambda[2])*deltaV[2]+(rho1*h1*u1);
+    F[0]=r[0][0]*min(0,lambda[0])*deltaV[0]+r[1][0]*min(0,lambda[1])*deltaV[1]+r[2][0]*min(0,lambda[2])*deltaV[2]+(rho4*u4);
+    F[1]=r[0][1]*min(0,lambda[0])*deltaV[0]+r[1][1]*min(0,lambda[1])*deltaV[1]+r[2][1]*min(0,lambda[2])*deltaV[2]+(rho4*u4*u4+p4);
+    F[2]=r[0][2]*min(0,lambda[0])*deltaV[0]+r[1][2]*min(0,lambda[1])*deltaV[1]+r[2][2]*min(0,lambda[2])*deltaV[2]+(rho4*h4*u4);
 
-//printf("%f,%f,%f,%f\n",F[0],uRl );
+    
+ 
 
 
 }
