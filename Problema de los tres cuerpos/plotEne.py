@@ -22,10 +22,10 @@ ax = figura.add_subplot(1, 1, 1)
 plt.ylim([-3,3])
 plt.xlim([-2.5, 2.5])
 plt.scatter(q3S, p3S,   s=1, facecolor='0.5', lw = 0)
-ax.set_title("$\mathrm{Mapa}$"+" "+"$\mathrm{de}$"+" "+"$\mathrm{Poincare}$"+" "+"$\mathrm{Simplectico}$")
-ax.set_xlabel("$q3$")
-ax.set_ylabel("$p3$")
+ax.set_title("$\mathrm{Energy}$")
+ax.set_xlabel("$E$")
+ax.set_ylabel("$T$")
 
 a = a[:-4]
 
-plt.savefig(a+".pdf")
+plt.savefig("ENE.pdf")
