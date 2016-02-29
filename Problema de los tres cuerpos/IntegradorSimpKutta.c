@@ -8,6 +8,7 @@ double func_q1(double t, double w, double x, double y, double z, double epsilon)
 double func_p1(double t, double w, double x, double y, double z, double epsilon);
 double func_q2(double t, double w, double x, double y, double z, double epsilon);
 double func_p2(double t, double w, double x, double y, double z, double epsilon);
+double energy(double t, double w, double x, double y, double z, double epsilon);
 void RK4_step(double step, double t, double *w1, double *x1, double *y1, double *z1, double epsilon, derivative func_q1, derivative func_q2, derivative func_p1, derivative func_p2);
 void simplectic_step(double step, double t, double *w2, double *x2, double *y2, double *z2, double epsilon, derivative func_q1, derivative func_q2,derivative func_p1, derivative func_p2);
 
@@ -19,6 +20,7 @@ int main(int argc, char ** argv){
 	double t;
 	double dp=0.001;
 	int i,j;
+	double ES,ERK;
 	
 	double T=2800.0;
 	double step=0.006;
@@ -44,6 +46,17 @@ int main(int argc, char ** argv){
 		printf("problems opening the file %s\n", filename2);
 		exit(1);
 	}
+	
+	FILE *in2;
+	char filename3[100];
+	sprintf(filename3, "energy.dat");
+	in2 = fopen(filename3,"w");
+	
+	if(!in2){
+		printf("problems opening the file %s\n", filename3);
+		exit(1);
+	}
+
 	
 	srand48(n_runs);
 	
@@ -184,7 +197,29 @@ int main(int argc, char ** argv){
 	/*******************/
 	/*******************/
 	
+	/*******************/
+	/**energy**/
+	/*******************/
 	
+	q1_RK4=a;
+	q2_RK4=5*(2*drand48()-1);
+	p1_RK4=0.0;
+	p2_RK4=5*(2*drand48()-1);
+	q1_S=q1_RK4;
+	q2_S=q2_RK4;
+	p1_S=p1_RK4;
+	p2_S=p2_RK4;
+	epsilon=1.0;
+	
+	for(i=0;i<n_step;i++){
+		ES=energy( t, q1_S, q2_S, p1_S, p2_S, epsilon);
+		ERK=ES=energy( t, q1_RK4, q2_RK4, p1_RK4, p2_RK4, epsilon);
+		fprintf(in2,"%f %.15e %.15e\n", t, ERK, ES);
+		RK4_step( step,  t, &q1_RK4, &q2_RK4, &p1_RK4, &p2_RK4, epsilon, func_q1, func_q2, func_p1, func_p2);
+		simplectic_step( step,  t, &q1_S, &q2_S, &p1_S, &p2_S, epsilon, func_q1, func_q2, func_p1, func_p2);
+		t += step;
+	}
+
 	
 
 	
@@ -217,6 +252,14 @@ double func_p2(double t, double w, double x, double y, double z, double epsilon)
 	return v;
 }
 
+/* calcula energia*/
+
+double energy(double t, double w, double x, double y, double z, double epsilon){
+	double e;
+	e=y*y + z*z/2.0 - 2.0/pow((w-x)*(w-x) + epsilon*epsilon/4.0, 1.0/2.0)- 1.0/pow(4*w*w + epsilon*epsilon, 1.0/2.0);
+	return e;
+
+}
 
 
 /*runge kutta 4*/

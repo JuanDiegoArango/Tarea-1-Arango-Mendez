@@ -42,6 +42,6 @@ ax.set_ylabel("$p3$")
 t = t[:-4]
 a = a[:-4]
 
-plt.savefig(t+"_"+a+".pdf")
+plt.savefig(t+"_"+a+"zoom1"+".pdf")
 
 

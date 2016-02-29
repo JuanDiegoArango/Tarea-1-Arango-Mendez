@@ -28,4 +28,4 @@ ax.set_ylabel("$p3$")
 
 a = a[:-4]
 
-plt.savefig(a+".pdf")
+plt.savefig(a+"zoom2"+".pdf")
